@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket Launch Countdown Admin</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <h1><a href="/">🚀 Rocket Launch Admin</a></h1>
+                <ul>
+                    <li><a href="/">All Launches</a></li>
+                    <li><a href="/create">New Launch</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="container">
+            <h2>Upcoming Rocket Launches</h2>
+
+<% if (countdowns.length === 0) { %>
+    <div class="empty-state">
+        <p>No upcoming launches scheduled.</p>
+        <a href="/create" class="btn btn-primary">Schedule First Launch</a>
+    </div>
+<% } else { %>
+    <div class="launch-grid">
+        <% countdowns.forEach(countdown => { %>
+            <div class="launch-card">
+                <h3><%= countdown.mission %></h3>
+                <div class="launch-details">
+                    <p><strong>Rocket:</strong> <%= countdown.rocket %></p>
+                    <p><strong>Launch Date:</strong> <%= countdown.launchDate.toLocaleString() %></p>
+                    <% if (countdown.description) { %>
+                        <p class="description"><%= countdown.description %></p>
+                    <% } %>
+                </div>
+                <div class="launch-actions">
+                    <a href="/countdown/<%= countdown.id %>" class="btn btn-primary">View Countdown</a>
+                    <a href="/edit/<%= countdown.id %>" class="btn btn-secondary">Edit</a>
+                    <form method="POST" action="/delete/<%= countdown.id %>" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this launch?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } %>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Rocket Launch Countdown Admin. Ready for liftoff!</p>
+        </div>
+    </footer>
+</body>
+</html>

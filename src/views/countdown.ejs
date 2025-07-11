@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= countdown.mission %> - Rocket Launch Countdown</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <h1><a href="/">🚀 Rocket Launch Admin</a></h1>
+                <ul>
+                    <li><a href="/">All Launches</a></li>
+                    <li><a href="/create">New Launch</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="countdown-page">
+    <h2><%= countdown.mission %></h2>
+    
+    <div class="countdown-info">
+        <p><strong>Rocket:</strong> <%= countdown.rocket %></p>
+        <p><strong>Launch Date:</strong> <span id="launch-date"><%= countdown.launchDate.toLocaleString() %></span></p>
+        <% if (countdown.description) { %>
+            <p class="description"><%= countdown.description %></p>
+        <% } %>
+    </div>
+    
+    <div class="countdown-timer" id="countdown-timer">
+        <div class="time-unit">
+            <span class="time-value" id="days">00</span>
+            <span class="time-label">Days</span>
+        </div>
+        <div class="time-unit">
+            <span class="time-value" id="hours">00</span>
+            <span class="time-label">Hours</span>
+        </div>
+        <div class="time-unit">
+            <span class="time-value" id="minutes">00</span>
+            <span class="time-label">Minutes</span>
+        </div>
+        <div class="time-unit">
+            <span class="time-value" id="seconds">00</span>
+            <span class="time-label">Seconds</span>
+        </div>
+    </div>
+    
+    <div class="countdown-status" id="countdown-status"></div>
+    
+    <div class="countdown-actions">
+        <a href="/" class="btn btn-secondary">Back to All Launches</a>
+        <a href="/edit/<%= countdown.id %>" class="btn btn-primary">Edit Launch</a>
+    </div>
+</div>
+
+<script>
+    const launchDate = new Date('<%= countdown.launchDate.toISOString() %>').getTime();
+</script>
+<script src="/public/js/countdown.js"></script>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Rocket Launch Countdown Admin. Ready for liftoff!</p>
+        </div>
+    </footer>
+</body>
+</html>
