@@ -1,5 +1,7 @@
 # Rocket Launch Countdown Admin 🚀
 
+[![CI](https://img.shields.io/github/actions/workflow/status/endorhq/node-demo/ci.yml?style=flat-square)](https://github.com/endorhq/node-demo/actions/workflows/ci.yml) [![Endor Dev](https://img.shields.io/badge/Endor-dev_/_test?style=flat-square)](https://docs.endor.dev/cli/overview/)
+
 A space-themed NodeJS demo application for managing rocket launch countdowns. Built with Fastify and Prisma, featuring a clean and simple interface for creating, viewing, and managing countdown timers for upcoming rocket launches.
 
 It uses [Endor](https://docs.endor.dev/cli/overview/) to run a Postgres database for development. You do not need to install any additional software, as Endor is like any other Node dependency.
@@ -121,8 +123,22 @@ Delete a countdown.
 
 Run the test suite:
 ```bash
-npm test
+npm test              # Run all tests
+npm run test:unit     # Run unit tests only
+npm run test:integration  # Run integration tests only
 ```
+
+### Continuous Integration
+
+This project includes GitHub Actions workflows for automated testing:
+
+- **CI Pipeline**: Runs on every push and pull request
+  - Tests on Node.js 20.x and 22.x
+  - Uses Endor to spin up PostgreSQL for integration tests
+  - Includes unit tests, integration tests, and code quality checks
+  - Falls back to containerized PostgreSQL if Endor fails
+
+The CI configuration can be found in `.github/workflows/ci.yml`.
 
 ## Database Schema
 

@@ -13,6 +13,8 @@
     "dev:app": "nodemon src/server.js",
     "dev:db": "endor run postgres",
     "test": "node --test tests/",
+    "test:unit": "node --test tests/api.test.js",
+    "test:integration": "node --test tests/integration.test.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js"

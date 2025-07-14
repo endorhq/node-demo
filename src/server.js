@@ -27,6 +27,11 @@ await server.register(import('@fastify/view'), {
 
 await server.register(import('@fastify/formbody'));
 
+// Health check route
+server.get('/health', async (request, reply) => {
+  return { status: 'ok', timestamp: new Date().toISOString() };
+});
+
 // Register routes
 await server.register(import('./routes/api.js'), { prefix: '/api' });
 await server.register(import('./routes/pages.js'));

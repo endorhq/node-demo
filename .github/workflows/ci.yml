@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DATABASE_URL: postgresql://postgres@localhost:5432/rocket_countdown
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+      fail-fast: false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Generate Prisma Client
+      run: npm run db:generate
+    
+    - name: Start PostgreSQL with Endor
+      id: endor
+      continue-on-error: true
+      run: |
+        npx endor run postgres &
+        ENDOR_PID=$!
+        echo "endor_pid=$ENDOR_PID" >> $GITHUB_OUTPUT
+        
+        # Wait for database
+        node tests/wait-for-db.js
+        echo "endor_success=true" >> $GITHUB_OUTPUT
+    
+    - name: Push database schema
+      run: npm run db:push
+    
+    - name: Seed test data
+      run: npm run db:seed
+    
+    - name: Run unit tests
+      run: npm run test:unit
+    
+    - name: Run integration tests
+      run: npm run test:integration
+    
+    - name: Stop Endor
+      if: always() && steps.endor.outputs.endor_pid
+      run: kill ${{ steps.endor.outputs.endor_pid }} || true
+
+  build:
+    name: Build and Smoke Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Generate Prisma Client
+      run: npm run db:generate
+    
+    - name: Test server startup (without DB)
+      run: |
+        # Start server
+        timeout 10s npm start &
+        SERVER_PID=$!
+        
+        # Wait a bit for server to start
+        sleep 3
+        
+        # The server should be running even without DB
+        if ps -p $SERVER_PID > /dev/null; then
+          echo "✅ Server process started successfully"
+          kill $SERVER_PID || true
+        else
+          echo "❌ Server process failed to start"
+          exit 1
+        fi
+      env:
+        PORT: 3002
