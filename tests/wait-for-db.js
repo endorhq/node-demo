@@ -7,7 +7,9 @@ let retries = 0;
 // Get database URL from environment or use default
 const databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres@localhost:5432/rocket_countdown';
 // Get the database URL
-const dbName = databaseUrl.split('/').pop();
+const splitDB = databaseUrl.split('/');
+const dbName = splitDB.pop();
+const baseUrl = splitDB.join('/');
 
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
