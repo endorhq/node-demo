@@ -2,6 +2,8 @@
 
 A space-themed NodeJS demo application for managing rocket launch countdowns. Built with Fastify and Prisma, featuring a clean and simple interface for creating, viewing, and managing countdown timers for upcoming rocket launches.
 
+It uses [Endor](https://docs.endor.dev/cli/overview/) to run a Postgres database for development. You do not need to install any additional software, as Endor is like any other Node dependency.
+
 ## Features
 
 - ✅ Create and manage rocket launch countdowns
@@ -28,8 +30,8 @@ A space-themed NodeJS demo application for managing rocket launch countdowns. Bu
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd rocket-countdown-admin
+git clone https://github.com/endorhq/node-demo.git
+cd node-demo
 ```
 
 2. Install dependencies:
@@ -47,7 +49,12 @@ cp .env.example .env
 npm run db:generate
 ```
 
-5. Push database schema:
+5. Start the application and the database:
+```bash
+npm run dev
+```
+
+6. Push database schema:
 ```bash
 npm run db:push
 ```
