@@ -39,13 +39,34 @@ jobs:
       id: endor
       continue-on-error: true
       run: |
-        npx endor run postgres &
+        echo "Starting Endor PostgreSQL..."
+        npx endor run postgres > endor.log 2>&1 &
         ENDOR_PID=$!
         echo "endor_pid=$ENDOR_PID" >> $GITHUB_OUTPUT
         
-        # Wait for database
-        node tests/wait-for-db.js
-        echo "endor_success=true" >> $GITHUB_OUTPUT
+        # Give Endor time to start
+        echo "Waiting for Endor to initialize..."
+        sleep 5
+        
+        # Check if Endor process is still running
+        if ps -p $ENDOR_PID > /dev/null; then
+          echo "Endor process is running (PID: $ENDOR_PID)"
+        else
+          echo "Endor process failed to start"
+          cat endor.log || true
+          exit 1
+        fi
+        
+        # Wait for database to be ready
+        if node tests/wait-for-db.js; then
+          echo "endor_success=true" >> $GITHUB_OUTPUT
+        else
+          echo "Database wait failed"
+          echo "=== Endor logs ==="
+          cat endor.log || true
+          echo "=== End of logs ==="
+          exit 1
+        fi
     
     - name: Push database schema
       run: npm run db:push

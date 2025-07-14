@@ -17,7 +17,8 @@
     "test:integration": "node --test tests/integration.test.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "node prisma/seed.js"
+    "db:seed": "node prisma/seed.js",
+    "wait-for-db": "node tests/wait-for-db-simple.js"
   },
   "keywords": [],
   "author": "",

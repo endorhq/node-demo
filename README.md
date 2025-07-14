@@ -1,6 +1,6 @@
 # Rocket Launch Countdown Admin 🚀
 
-[![CI](https://img.shields.io/github/actions/workflow/status/endorhq/node-demo/ci.yml?style=flat-square)](https://github.com/endorhq/node-demo/actions/workflows/ci.yml) [![Endor Dev](https://img.shields.io/badge/Endor-dev_/_test?style=flat-square)](https://docs.endor.dev/cli/overview/)
+[![CI](https://img.shields.io/github/actions/workflow/status/endorhq/node-demo/ci.yml?style=flat-square)](https://github.com/endorhq/node-demo/actions/workflows/ci.yml) [![Endor Dev](https://img.shields.io/badge/endor-dev_/_test-purple?style=flat-square)](https://docs.endor.dev/cli/overview/)
 
 A space-themed NodeJS demo application for managing rocket launch countdowns. Built with Fastify and Prisma, featuring a clean and simple interface for creating, viewing, and managing countdown timers for upcoming rocket launches.
 
