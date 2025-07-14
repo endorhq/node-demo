@@ -45,7 +45,7 @@ async function createDatabaseIfNeeded() {
 }
 
 async function waitForDatabase() {
-  console.log(`Waiting for PostgreSQL server at ${url.hostname}:${url.port || '5432'}`);
+  console.log(`Waiting for PostgreSQL server at ${databaseUrl}`);
   
   // First, wait for PostgreSQL server to be ready
   while (retries < maxRetries) {
