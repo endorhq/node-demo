@@ -1,57 +1,95 @@
 import { PrismaClient } from '@prisma/client';
+import { execSync } from 'child_process';
 
 const maxRetries = 120; // 2 minutes with 1 second intervals
 let retries = 0;
 
 // Get database URL from environment or use default
 const databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres@localhost:5432/rocket_countdown';
+// Get the database URL
+const dbName = databaseUrl.split('/').pop();
 
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function waitForDatabase() {
-  console.log(`Waiting for database at ${databaseUrl}`);
-  
-  // Create a new Prisma client for each attempt to avoid connection pooling issues
-  while (retries < maxRetries) {
-    const prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: databaseUrl
-        }
-      },
-      log: retries > 30 ? ['error'] : [] // Only log errors after 30 attempts
-    });
+async function createDatabaseIfNeeded() {
+  // First connect to the default 'postgres' database
+  const prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: baseUrl
+      }
+    }
+  });
+
+  try {
+    // Check if our database exists
+    const result = await prisma.$queryRaw`
+      SELECT 1 FROM pg_database WHERE datname = ${dbName}
+    `;
     
+    if (result.length === 0) {
+      console.log(`Creating database '${dbName}'...`);
+      await prisma.$executeRawUnsafe(`CREATE DATABASE "${dbName}"`);
+      console.log(`✅ Database '${dbName}' created successfully`);
+    } else {
+      console.log(`Database '${dbName}' already exists`);
+    }
+  } catch (error) {
+    // If we can't even connect to postgres database, the server isn't ready
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+async function waitForDatabase() {
+  console.log(`Waiting for PostgreSQL server at ${url.hostname}:${url.port || '5432'}`);
+  
+  // First, wait for PostgreSQL server to be ready
+  while (retries < maxRetries) {
     try {
-      // Try a simple query to check if database is ready
-      await prisma.$queryRaw`SELECT 1`;
-      console.log('✅ Database is ready!');
-      await prisma.$disconnect();
-      process.exit(0);
+      await createDatabaseIfNeeded();
+      break; // Server is ready and database exists
     } catch (error) {
       retries++;
       
-      // Log progress every 10 attempts
       if (retries % 10 === 0) {
-        console.log(`Still waiting for database... (${retries}/${maxRetries})`);
+        console.log(`Still waiting for PostgreSQL server... (${retries}/${maxRetries})`);
+        console.log(`Error: ${error.message}`);
       }
       
-      // Disconnect to clean up any partial connections
-      try {
-        await prisma.$disconnect();
-      } catch (disconnectError) {
-        // Ignore disconnect errors
-      }
-      
-      // Wait before next attempt
       await sleep(1000);
     }
   }
   
-  console.error('❌ Database connection timeout after', maxRetries, 'seconds');
-  process.exit(1);
+  if (retries >= maxRetries) {
+    console.error('❌ PostgreSQL server connection timeout');
+    process.exit(1);
+  }
+  
+  // Now verify we can connect to our specific database
+  console.log(`Verifying connection to database '${dbName}'...`);
+  
+  const prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: databaseUrl
+      }
+    }
+  });
+  
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    console.log('✅ Database is ready and accepting connections!');
+    await prisma.$disconnect();
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Could not connect to database:', error.message);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
 }
 
 // Run the wait function
